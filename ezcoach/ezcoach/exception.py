@@ -1,0 +1,2 @@
+class Disconnected(Exception):
+    pass
