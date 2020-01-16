@@ -61,4 +61,4 @@ plt.show()
 
 data = pd.DataFrame({'mc': mc_mean_rewards, 'ql': ql_mean_rewards})
 data.index.name = 'episode'
-data.to_csv('grid_world_mean_rewards.csv')
+data.to_csv('grid_world_data/grid_world_mean_rewards.csv')
