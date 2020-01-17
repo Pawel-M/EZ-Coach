@@ -1,142 +1,261 @@
 import unittest
 import numpy as np
-from ezcoach.range import Range, BoolRange
-
-int_ranges = ((0, 1),
-              (-1, 0),
-              (-1, 1),
-              (10, 20),
-              (-20, -10),
-              (0, 1_000_000),
-              (-1_000_000, 0),
-              (-1_000_000, 1_000_000),
-              )
-
-float_ranges = ((0., 1.),
-                (-1., 0.),
-                (-1., 1.),
-                (10., 20.),
-                (-20., -10.),
-                (0., 1_000_000.),
-                (-1_000_000., 0.),
-                (-1_000_000., 1_000_000.),
-                (0., .1),
-                (-.1, 0.),
-                (-.1, .1),
-                (.000001, .000005),
-                (-.000005, -.000001),
-                (-.000001, 1_000_000.),
-                )
-
-sizes = (1, 2, 5, 10, 20, 50, 100)
-
-replays = 5
+from ezcoach.value import BoolValue, IntValue, FloatValue, BoolList, IntList, FloatList
+from ezcoach.range import Range, UnboundRange
 
 
-class TestRangeRandom(unittest.TestCase):
+class TestBoolValueContains(unittest.TestCase):
 
-    def test_int_range_single_random_range(self):
-        self._check_range_single_random_range(int_ranges)
+    def test_contains_true(self):
+        value = BoolValue()
+        self.assertTrue(value.contains(True), 'Contains failed')
 
-    def test_float_range_single_random_range(self):
-        self._check_range_single_random_range(float_ranges)
+    def test_contains_false(self):
+        value = BoolValue()
+        self.assertTrue(value.contains(False), 'Contains failed')
 
-    def _check_range_single_random_range(self, ranges):
-        for min, max in ranges:
-            for i in range(replays):
-                with self.subTest():
-                    r = Range(min, max)
-                    self.assertTrue(min <= r.random() <= max, 'Random not in range')
+    def test_contains_int(self):
+        value = BoolValue()
+        self.assertFalse(value.contains(5), 'Contains failed')
 
-    def test_int_range_random_type(self):
-        self._check_range_random_type(int_ranges, int)
+    def test_contains_float(self):
+        value = BoolValue()
+        self.assertFalse(value.contains(2.5), 'Contains failed')
 
-    def test_float_range_random_type(self):
-        self._check_range_random_type(float_ranges, float)
-
-    def _check_range_random_type(self, ranges, t):
-        for min, max in ranges:
-            for i in range(replays):
-                with self.subTest():
-                    r = Range(min, max)
-                    self.assertIsInstance(r.random(), t, 'Random wrong type')
-
-    def test_int_range_multiple_random(self):
-        self.check_range_multiple_random_range(int_ranges)
-
-    def test_float_range_multiple_random(self):
-        self.check_range_multiple_random_range(float_ranges)
-
-    def check_range_multiple_random_range(self, ranges):
-        for min, max in ranges:
-            for size in sizes:
-                for i in range(replays):
-                    with self.subTest():
-                        r = Range(min, max)
-                        rand = r.random(size)
-                        self.assertTrue(np.alltrue(min <= rand) and np.alltrue(rand <= max), 'Random not in range')
-
-    def test_bool_range_single_random_shape(self):
-        for size in sizes:
-            for i in range(replays):
-                with self.subTest():
-                    r = BoolRange()
-                    self.assertEqual(r.random(size).shape, (size, 1), 'Random wrong shape')
-
-    def test_int_range_multiple_random_shape(self):
-        self.check_range_multiple_random_shape(int_ranges)
-
-    def test_float_range_multiple_random_shape(self):
-        self.check_range_multiple_random_shape(float_ranges)
-
-    def check_range_multiple_random_shape(self, ranges):
-        for min, max in ranges:
-            for size in sizes:
-                for i in range(replays):
-                    with self.subTest():
-                        r = Range(min, max)
-                        rand = r.random(size)
-                        self.assertEqual(rand.shape, (size, 1), 'Random wrong shape')
+    def test_contains_zero(self):
+        value = BoolValue()
+        self.assertFalse(value.contains(0), 'Contains failed')
 
 
-class TestRangeNormalize(unittest.TestCase):
+class TestIntValueContains(unittest.TestCase):
 
-    def test_int_range_min_not_centered(self):
-        range = Range(1, 5)
-        self.assertEqual(0, range.normalize(1), 'Normalization failed')
+    def test_int_range_contains_min_border(self):
+        value = IntValue(Range(1, 5))
+        self.assertTrue(value.contains(1), 'Contains failed')
 
-    def test_int_range_max_not_centered(self):
-        range = Range(1, 5)
-        self.assertEqual(1, range.normalize(5), 'Normalization failed')
+    def test_int_range_contains_max_border(self):
+        value = IntValue(Range(1, 5))
+        self.assertTrue(value.contains(5), 'Contains failed')
 
-    def test_int_range_middle_not_centered(self):
-        range = Range(1, 5)
-        self.assertEqual(.5, range.normalize(3), 'Normalization failed')
+    def test_int_range_contains_middle(self):
+        value = IntValue(Range(1, 5))
+        self.assertTrue(value.contains(3), 'Contains failed')
 
-    def test_int_range_below_min_not_centered(self):
-        range = Range(1, 5)
-        self.assertEqual(-0.5, range.normalize(-1), 'Normalization failed')
+    def test_int_range_not_contains_min_border(self):
+        value = IntValue(Range(1, 5))
+        self.assertFalse(value.contains(.9999), 'Contains failed')
 
-    def test_int_range_above_max_not_centered(self):
-        range = Range(1, 5)
-        self.assertEqual(1.5, range.normalize(7), 'Normalization failed')
+    def test_int_range_not_contains_max_border(self):
+        value = IntValue(Range(1, 5))
+        self.assertFalse(value.contains(5.0001), 'Contains failed')
 
-    def test_int_range_min_centered(self):
-        range = Range(1, 5)
-        self.assertEqual(-1, range.normalize(1, zero_centered=True), 'Zero centered normalization failed')
+    def test_int_range_not_contains_min_large(self):
+        value = IntValue(Range(1, 5))
+        self.assertFalse(value.contains(-9999999), 'Contains failed')
 
-    def test_int_range_max_centered(self):
-        range = Range(1, 5)
-        self.assertEqual(1, range.normalize(5, zero_centered=True), 'Zero centered normalization failed')
+    def test_int_range_not_contains_max_large(self):
+        value = IntValue(Range(1, 5))
+        self.assertFalse(value.contains(9999999), 'Contains failed')
 
-    def test_int_range_middle_centered(self):
-        range = Range(1, 5)
-        self.assertEqual(0, range.normalize(3, zero_centered=True), 'Zero centered normalization failed')
+    def test_unbound_range_contains_int(self):
+        value = IntValue(UnboundRange())
+        self.assertTrue(value.contains(5), 'Contains failed')
 
-    def test_int_range_below_min_centered(self):
-        range = Range(1, 5)
-        self.assertEqual(-2, range.normalize(-1, zero_centered=True), 'Zero centered normalization failed')
+    def test_unbound_range_contains_float(self):
+        value = IntValue(UnboundRange())
+        self.assertFalse(value.contains(2.5), 'Contains failed')
 
-    def test_int_range_above_max_centered(self):
-        range = Range(1, 5)
-        self.assertEqual(2, range.normalize(7, zero_centered=True), 'Zero centered normalization failed')
+    def test_unbound_range_contains_zero(self):
+        value = IntValue(UnboundRange())
+        self.assertTrue(value.contains(0), 'Contains failed')
+
+
+class TestFloatValueContains(unittest.TestCase):
+
+    def test_int_range_contains_min_border(self):
+        value = FloatValue(Range(.5, 2.5))
+        self.assertTrue(value.contains(.5), 'Contains failed')
+
+    def test_int_range_contains_max_border(self):
+        value = FloatValue(Range(.5, 2.5))
+        self.assertTrue(value.contains(2.5), 'Contains failed')
+
+    def test_int_range_contains_middle(self):
+        value = FloatValue(Range(.5, 2.5))
+        self.assertTrue(value.contains(1.5), 'Contains failed')
+
+    def test_int_range_not_contains_min_border(self):
+        value = FloatValue(Range(.5, 2.5))
+        self.assertFalse(value.contains(.49999), 'Contains failed')
+
+    def test_int_range_not_contains_max_border(self):
+        value = FloatValue(Range(.5, 2.5))
+        self.assertFalse(value.contains(2.50001), 'Contains failed')
+
+    def test_int_range_not_contains_min_large(self):
+        value = FloatValue(Range(.5, 2.5))
+        self.assertFalse(value.contains(-9999999.), 'Contains failed')
+
+    def test_int_range_not_contains_max_large(self):
+        value = FloatValue(Range(.5, 2.5))
+        self.assertFalse(value.contains(9999999.), 'Contains failed')
+
+    def test_unbound_range_contains_int(self):
+        value = FloatValue(UnboundRange())
+        self.assertFalse(value.contains(5), 'Contains failed')
+
+    def test_unbound_range_contains_float(self):
+        value = FloatValue(UnboundRange())
+        self.assertTrue(value.contains(2.5), 'Contains failed')
+
+    def test_unbound_range_contains_zero(self):
+        value = FloatValue(UnboundRange())
+        self.assertTrue(value.contains(0.), 'Contains failed')
+
+    def test_unbound_range_contains_zero_int(self):
+        value = FloatValue(UnboundRange())
+        self.assertFalse(value.contains(0), 'Contains failed')
+
+
+class TestBoolListValueContains(unittest.TestCase):
+
+    def test_size_1_contains_true(self):
+        value = BoolList(1)
+        self.assertFalse(value.contains(True), 'Contains failed')
+
+    def test_size_1_contains_false(self):
+        value = BoolList(1)
+        self.assertFalse(value.contains(False), 'Contains failed')
+
+    def test_size_1_contains_true_list(self):
+        value = BoolList(1)
+        self.assertTrue(value.contains([True]), 'Contains failed')
+
+    def test_size_1_contains_false_list(self):
+        value = BoolList(1)
+        self.assertTrue(value.contains([False]), 'Contains failed')
+
+    def test_size_2_contains_true_list(self):
+        value = BoolList(2)
+        self.assertTrue(value.contains([True, True]), 'Contains failed')
+
+    def test_size_2_contains_false_list(self):
+        value = BoolList(2)
+        self.assertTrue(value.contains([False, False]), 'Contains failed')
+
+    def test_size_2_contains_true_false_list(self):
+        value = BoolList(2)
+        self.assertTrue(value.contains([True, False]), 'Contains failed')
+
+    def test_size_10_contains_true_list(self):
+        value = BoolList(10)
+        self.assertTrue(value.contains([True for __ in range(10)]), 'Contains failed')
+
+    def test_size_10_contains_false_list(self):
+        value = BoolList(10)
+        self.assertTrue(value.contains([False for __ in range(10)]), 'Contains failed')
+
+    def test_size_10_contains_true_false_list(self):
+        value = BoolList(10)
+        bool_list = [True, False, True, False, True, False, True, False, True, False]
+        self.assertTrue(value.contains(bool_list), 'Contains failed')
+
+
+class TestIntListValueContains(unittest.TestCase):
+
+    def test_size_1_contains_in(self):
+        value = IntList([Range(1, 5)])
+        self.assertFalse(value.contains(2), 'Contains failed')
+
+    def test_size_1_contains_out(self):
+        value = IntList([Range(1, 5)])
+        self.assertFalse(value.contains(6), 'Contains failed')
+
+    def test_size_1_contains_in_list(self):
+        value = IntList([Range(1, 5)])
+        self.assertTrue(value.contains([2]), 'Contains failed')
+
+    def test_size_1_contains_out_list(self):
+        value = IntList([Range(1, 5)])
+        self.assertFalse(value.contains([6]), 'Contains failed')
+
+    def test_size_2_contains_in_list(self):
+        value = IntList([Range(1, 5), Range(1, 5)])
+        self.assertTrue(value.contains([2, 3]), 'Contains failed')
+
+    def test_size_2_contains_out_list(self):
+        value = IntList([Range(1, 5), Range(1, 5)])
+        self.assertFalse(value.contains([6, 7]), 'Contains failed')
+
+    def test_size_2_contains_in_out_list(self):
+        value = IntList([Range(1, 5), Range(1, 5)])
+        self.assertFalse(value.contains([2, 7]), 'Contains failed')
+
+    def test_size_10_contains_in_list(self):
+        value = IntList([Range(1, 5) for __ in range(10)])
+        v = [1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
+        self.assertTrue(value.contains(v), 'Contains failed')
+
+    def test_size_10_contains_out_list(self):
+        value = IntList([Range(1, 5) for __ in range(10)])
+        v = [-5, -4, -3, -2, -1, 6, 7, 8, 9, 10]
+        self.assertFalse(value.contains(v), 'Contains failed')
+
+    def test_size_10_contains_in_out_list(self):
+        value = IntList([Range(1, 5) for __ in range(10)])
+        v = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        self.assertFalse(value.contains(v), 'Contains failed')
+
+    def test_size_10_contains_wrong_len_list(self):
+        value = IntList([Range(1, 5) for __ in range(10)])
+        self.assertFalse(value.contains([2, 3]), 'Contains failed')
+
+
+class TestFloatListValueContains(unittest.TestCase):
+
+    def test_size_1_contains_in(self):
+        value = FloatList([Range(.5, 2.5)])
+        self.assertFalse(value.contains(1.), 'Contains failed')
+
+    def test_size_1_contains_out(self):
+        value = FloatList([Range(.5, 2.5)])
+        self.assertFalse(value.contains(3.), 'Contains failed')
+
+    def test_size_1_contains_in_list(self):
+        value = FloatList([Range(.5, 2.5)])
+        self.assertTrue(value.contains([1.]), 'Contains failed')
+
+    def test_size_1_contains_out_list(self):
+        value = FloatList([Range(.5, 2.5)])
+        self.assertFalse(value.contains([3.]), 'Contains failed')
+
+    def test_size_2_contains_in_list(self):
+        value = FloatList([Range(.5, 2.5), Range(.5, 2.5)])
+        self.assertTrue(value.contains([1., 1.5]), 'Contains failed')
+
+    def test_size_2_contains_out_list(self):
+        value = FloatList([Range(.5, 2.5), Range(.5, 2.5)])
+        self.assertFalse(value.contains([3., 3.5]), 'Contains failed')
+
+    def test_size_2_contains_in_out_list(self):
+        value = FloatList([Range(.5, 2.5), Range(.5, 2.5)])
+        self.assertFalse(value.contains([2, 7]), 'Contains failed')
+
+    def test_size_10_contains_in_list(self):
+        value = FloatList([Range(.5, 2.5) for __ in range(10)])
+        v = [.5, 1., 1.5, 2., 2.5, .5, 1., 1.5, 2., 2.5]
+        self.assertTrue(value.contains(v), 'Contains failed')
+
+    def test_size_10_contains_out_list(self):
+        value = FloatList([Range(.5, 2.5) for __ in range(10)])
+        v = [-2.5, -2., -1.5, -1., -.5, 3., 3.5, 4., 4.5, 5.]
+        self.assertFalse(value.contains(v), 'Contains failed')
+
+    def test_size_10_contains_in_out_list(self):
+        value = FloatList([Range(.5, 2.5) for __ in range(10)])
+        v = [.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5, 5.]
+        self.assertFalse(value.contains(v), 'Contains failed')
+
+    def test_size_10_contains_wrong_len_list(self):
+        value = FloatList([Range(.5, 2.5) for __ in range(10)])
+        self.assertFalse(value.contains([1.5, 2.]), 'Contains failed')
