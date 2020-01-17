@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 
 namespace EZCoach.Value {
+    /// <summary>
+    /// The class representing a definition of a value in the form of list of integers.
+    /// </summary>
     [Serializable]
     public class IntList {
         public readonly string type = "IntList";

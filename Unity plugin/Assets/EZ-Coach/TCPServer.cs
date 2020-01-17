@@ -11,6 +11,9 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace EZCoach {
+    /// <summary>
+    /// An exception class thrown if the connection is not established before sending a message.
+    /// </summary>
     public class NotConnectedException : Exception {
         public NotConnectedException() { }
         protected NotConnectedException([NotNull] SerializationInfo info, StreamingContext context) : base(info, context) { }
@@ -18,6 +21,9 @@ namespace EZCoach {
         public NotConnectedException(string message, Exception innerException) : base(message, innerException) { }
     }
 
+    /// <summary>
+    /// A class representing a TCP socket connection.
+    /// </summary>
     public class TCPServer {
         private readonly int port;
         private readonly int bufferSize;
@@ -33,11 +39,17 @@ namespace EZCoach {
             messages = Queue.Synchronized(new Queue());
         }
 
+        /// <summary>
+        /// Starts the inner connection thread.
+        /// </summary>
         public void Start() {
             connectionThread = new Thread(WaitForConnection);
             connectionThread.Start();
         }
 
+        /// <summary>
+        /// Stops the inner connection thread.
+        /// </summary>
         public void Stop() {
             running = false;
             tcpListener.Stop();
@@ -45,11 +57,17 @@ namespace EZCoach {
             Debug.Log("TCP Server stopped");
         }
 
+        /// <summary>
+        /// Resets the connection.
+        /// </summary>
         public void Restart() {
             Stop();
             Start();
         }
 
+        /// <summary>
+        /// Waits for the connection and if a client is connected, collects the messages and puts them into the messages queue.
+        /// </summary>
         private void WaitForConnection() {
             running = true;
             tcpListener = new TcpListener(IPAddress.Loopback, port);
@@ -80,6 +98,11 @@ namespace EZCoach {
             }
         }
 
+        /// <summary>
+        /// Sends the message to the client.
+        /// </summary>
+        /// <param name="message">a string containing the message to be sent</param>
+        /// <exception cref="NotConnectedException">Thrown if not connected before sending the message.</exception>
         public void Send(string message) {
             if (!IsConnected)
                 throw new NotConnectedException($"Error sending message {message} - disconnected.");
@@ -94,6 +117,10 @@ namespace EZCoach {
             }
         }
 
+        /// <summary>
+        /// Obtains messages from the queue. Returns a single string containing a message or null if not messages were present.
+        /// </summary>
+        /// <returns>a single message or null if no messages were present</returns>
         public string ObtainMessage() {
             if (messages.Count == 0)
                 return null;
@@ -101,6 +128,9 @@ namespace EZCoach {
             return (string) messages.Dequeue();
         }
 
+        /// <summary>
+        /// Returns weather the server is connected.
+        /// </summary>
         public bool IsConnected => tcpClient != null && tcpClient.Connected;
     }
 

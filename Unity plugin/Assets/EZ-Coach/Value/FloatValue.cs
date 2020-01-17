@@ -1,6 +1,9 @@
 using System;
 
 namespace EZCoach.Value {
+    /// <summary>
+    /// The class representing a definition of a single floating-point value.
+    /// </summary>
     [Serializable]
     public class FloatValue {
         
