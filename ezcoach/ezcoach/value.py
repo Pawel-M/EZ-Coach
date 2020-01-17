@@ -37,11 +37,12 @@ class BaseValue(abc.ABC, Iterable, Sized):
         :return: a random value compliant with the definition
         """
 
-    def normalize(self, value):
+    def normalize(self, value, zero_centered=False):
         """
         Normalizes the provided value according to the value definition.
 
         :param value: a value to be normalized
+        :param zero_centered: if True than returns values in range [-1, 1] else [0, 1]
         :return: a normalized value
         """
         for i, r in enumerate(self.ranges):
@@ -174,6 +175,9 @@ class TypedList(BaseValue):
         result = np.hstack([r.random(n) for r in self._ranges])
         return self.normalize(result) if normalize else result
 
+    def normalize(self, value, zero_centered=False):
+        return np.hstack([r.normalize(v, zero_centered) for r, v in zip(self._ranges, value)])
+
     def __getitem__(self, item):
         return self._ranges[item]
 
@@ -284,7 +288,7 @@ class IntList(_SingleTypeList):
             raise ValueError('Type not recognised')
         return cls((ezcoach.range.from_json(r) for r in json['ranges']), json['description'])
 
-    def __init__(self, ranges: typing.Iterable[ezcoach.range.Range], description: str):
+    def __init__(self, ranges: typing.Iterable[ezcoach.range.Range], description: str = None):
         """
         Initializes the object with an iterable of ranges and a textual description. Defines the value in the form
         of an integer list with length equal to the length of provided ranges. Elements of the value are in range
@@ -309,7 +313,7 @@ class FloatList(_SingleTypeList):
     """
 
     @classmethod
-    def from_size(cls, size, range, description):
+    def from_size(cls, size, range, description: str = None):
         """
         Returns the object initialized based on the size. It represents the value in the form of a list of given size
         where each element is in specified range.
@@ -365,7 +369,7 @@ class BoolList(_SingleTypeList):
             raise ValueError('Type not recognised')
         return cls(json['size'], json['description'])
 
-    def __init__(self, size, description):
+    def __init__(self, size, description: str = None):
         """
         Initializes the object with a size and a textual description. Defines the value in the form of a bool list
         of a given size.
@@ -409,8 +413,8 @@ class _SingleValue(BaseValue, abc.ABC):
         result = self._range.random(n)
         return self.normalize(result) if normalize else result
 
-    def normalize(self, value):
-        return self._range.normalize(value)
+    def normalize(self, value, zero_centered=True):
+        return self._range.normalize(value, zero_centered)
 
     @property
     def range(self):
@@ -528,7 +532,7 @@ class BoolValue(_SingleValue):
         :param range: a Range object
         :param description: a textual description
         """
-        super(BoolValue, self).__init__(float, ezcoach.range.BoolRange.instance(), description)
+        super(BoolValue, self).__init__(bool, ezcoach.range.BoolRange.instance(), description)
 
     def to_json(self):
         return {

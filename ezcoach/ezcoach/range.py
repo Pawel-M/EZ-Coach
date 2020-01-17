@@ -184,6 +184,9 @@ class UnboundRange(Range):
         size = (size, 1) if isinstance(size, int) else size
         return np.random.randn(size)
 
+    def normalize(self, value, zero_centered=True):
+        return value
+
     def to_json(self):
         return {'type': self.__class__.__name__}
 
