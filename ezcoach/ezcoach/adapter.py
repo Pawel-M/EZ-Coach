@@ -1,4 +1,6 @@
-import itertools
+"""
+Adapter module contains various adapters that can be used to change state, action or reward to a desired form.
+"""
 from typing import Iterable, Union, Callable
 import numpy as np
 

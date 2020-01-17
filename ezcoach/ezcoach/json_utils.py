@@ -1,3 +1,7 @@
+"""
+This module introduces the function that is used to split partial JSONs at the'}{' string.
+"""
+
 from typing import Iterable
 
 

@@ -1,3 +1,10 @@
+"""
+This module introduces the Environment class which is used as a representation of the game's environment executed
+on the separate thread. To connect to the environment use connect method of the RemoteEnvironment class.
+When the connection is established the Manifest object is available to be obtained from the RemoteEnvironment.
+This class contains necessary information about the connected game.
+"""
+
 import abc
 from collections import namedtuple
 from typing import Tuple, Dict, Iterable, Sized

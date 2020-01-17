@@ -1,4 +1,9 @@
-from collections import defaultdict, OrderedDict
+"""
+Metrics collected during the training and testing procedures are recorded by the Recorder class introduced in this
+module. The Recorder object can be accessed by the metrics attribute of the Runner class (ezcoach.core module).
+For multi-agent procedures MultiRecorder is used.
+"""
+
 from typing import Dict, Iterable, Tuple
 import matplotlib.pyplot as plt
 import pandas as pd

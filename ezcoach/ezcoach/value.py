@@ -1,3 +1,9 @@
+"""
+Classes introduced in this module represent the value definitions, and are used to define the state observations
+and actions spaces. They are created during parsing of the game's manifest, which can be obtained from
+the RemoteEnvironment class (ezcoach.environment module).
+"""
+
 import abc
 import typing
 from collections.abc import Iterable, Sized

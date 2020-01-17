@@ -1,3 +1,11 @@
+"""
+The agent module contains three abstract classes that are subclassed in order to create algorithms.
+The classes are:
+
+* Player - for an algorithm that cannot learn and can only play
+* Learner - for a learning algorithm controlling a single agent
+* MultiLearner - for a learning algorithm of controlling a number of agents
+"""
 import abc
 from typing import List, Iterable
 

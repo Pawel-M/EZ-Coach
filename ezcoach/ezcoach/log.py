@@ -1,3 +1,7 @@
+"""
+This module defined the log function which is used to log messages to the console.
+"""
+
 GLOBAL_VERBOSE = 1
 
 

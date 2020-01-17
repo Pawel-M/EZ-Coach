@@ -1,3 +1,8 @@
+"""
+Classes defined in this module represent the range of values, and are used by the value definitions introduced
+in the ezcoach.values module.
+"""
+
 import typing
 from numbers import Number
 

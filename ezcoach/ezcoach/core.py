@@ -1,3 +1,16 @@
+"""
+This module contains the main class of the EZ-Coach framework, namely, the Runner class.
+This class is used to perform training and testing procedures. In order to operate, Runner must be initialized
+with the agent or a list of agents. Agents must subclass one of the three classes defined in the ezcoach.agent module:
+
+* Player,
+* Learner,
+* MultiLearner.
+
+Use train or play methods to conduct training or testing procedures.
+
+"""
+
 import time
 from enum import Enum
 from typing import Union, Iterable, Dict
@@ -35,7 +48,7 @@ def _assert_num_players_supported(num_players: int, possible_players: Iterable[i
 # TODO: add a recorder property passing the distributor recorder
 class Runner:
     """
-    The main class of the ez-ezcoach framework. It manages the training and testing procedures
+    The main class of the EZ-coach framework. It manages the training and testing procedures
     and is the main entry point for users. Algorithms are provided in the constructor.
     User can provide a single algorithm or a list (iterable) of algorithms to be used
     in the training or testing procedures. If the algorithm provided is a Player instance than it can only be used

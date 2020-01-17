@@ -1,3 +1,8 @@
+"""
+This module introduces the Distributor classes which are used by the Runner class (ezcoach.core module) to distribute
+state observations and rewards to the agents, and obtain agents' action selections.
+"""
+
 import abc
 import statistics
 import time

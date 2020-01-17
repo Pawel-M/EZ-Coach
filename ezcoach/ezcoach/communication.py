@@ -1,3 +1,6 @@
+"""
+This module contains classes responsible for establishing and maintaining the communication with the game.
+"""
 import abc
 import json
 import socket
