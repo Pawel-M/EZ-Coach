@@ -30,6 +30,6 @@ To train the algorithm the Runner class is used. The algorithm is passed in the 
     runner.train()
 """
 
-from ezcoach.core import Runner
+from ezcoach.core import Runner, train, play
 from ezcoach.enviroment import RemoteEnvironment
 from ezcoach.agent import Player, Learner, MultiLearner

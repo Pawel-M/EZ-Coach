@@ -486,6 +486,10 @@ class IntValue(_SingleValue):
 
 @value_definition
 class FloatValue(_SingleValue):
+    """
+    The class representing a definition of a single floating-point value. It inherits from SingleValue class.
+    """
+
     @classmethod
     def from_json(cls, json):
         """

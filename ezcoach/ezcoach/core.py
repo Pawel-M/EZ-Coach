@@ -105,7 +105,7 @@ class Runner:
         else:
             self._environment = RemoteEnvironment(verbose=verbose)
 
-    def play(self, num_episodes=1):
+    def play(self, num_episodes=1, options: Dict[str, str] = None):
         """
         Starts the testing procedure using agent or agents provided in the constructor.
         If an iterable of agents or a single MultiLearner agent was provided and the environment supports
@@ -113,11 +113,12 @@ class Runner:
         The metrics gathered during the testing procedure can be accessed using metrics property.
 
         :param num_episodes: a number of episodes to be run
+        :param options: a dictionary representing the options sent to the environment
         """
         start_time = time.time()
 
         try:
-            self._run(Mode.Playing, num_episodes)
+            self._run(Mode.Playing, num_episodes=num_episodes, options=options)
         except KeyboardInterrupt:
             log(f'Playing interrupted by user.', level=1)
             self._environment.stop()
@@ -207,3 +208,56 @@ class Runner:
         :return: the agent (or agents) operated by the runner
         """
         return self._agent
+
+
+def train(agent: Union[Player, Iterable[Player]],
+          environment: RemoteEnvironment = None,
+          num_players: int = None,
+          options: Dict[str, str] = None,
+          state_adapters=None,
+          action_adapters=None,
+          reward_adapters=None,
+          verbose=None):
+    """
+    Creates runner with the passed parameters and starts the training process.
+    Returns the created runner when the process is finished.
+
+    :param agent: an algorithm implementing Player interface representing a single agent
+    :param environment: an environment to be used in training and testing procedures
+    :param num_players: a number of players simultaneously interacting with the environment
+    :param options: a dictionary representing the options sent to the environment
+    :param state_adapters: an iterable of state adapters or a single state adapter
+    :param action_adapters: an iterable of action adapters or a single action adapter
+    :param reward_adapters: an iterable of reward adapters or a single reward adapter
+    :param verbose: the value representing the frequency of logging
+    :return: the runner instance used to conduct the training procedure
+    """
+    runner = Runner(agent, environment, state_adapters, action_adapters, reward_adapters, verbose)
+    runner.train(num_players, options)
+    return runner
+
+
+def play(agent: Union[Player, Iterable[Player]],
+         environment: RemoteEnvironment = None,
+         num_episodes=1,
+         options: Dict[str, str] = None,
+         state_adapters=None,
+         action_adapters=None,
+         reward_adapters=None,
+         verbose=None):
+    """
+    Creates runner with the passed parameters and starts the testing process.
+    Returns the created runner when the process is finished.
+    :param agent: an algorithm implementing Player interface representing a single agent
+    :param environment: an environment to be used in training and testing procedures
+    :param num_episodes: a number of episodes to be run
+    :param options: a dictionary representing the options sent to the environment
+    :param state_adapters: an iterable of state adapters or a single state adapter
+    :param action_adapters: an iterable of action adapters or a single action adapter
+    :param reward_adapters: an iterable of reward adapters or a single reward adapter
+    :param verbose: the value representing the frequency of logging
+    :return: the runner instance used to conduct the testing procedure
+    """
+    runner = Runner(agent, environment, state_adapters, action_adapters, reward_adapters, verbose)
+    runner.play(num_episodes, options)
+    return runner
